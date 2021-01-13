@@ -12,30 +12,25 @@
 //then the 3rd, 7th, and 13th digital inputs will be active, and the first 3 
 //analog inputs will be active, first for key 3, then key 7, then key 13
 
-#include "stdio.h"
+#include "iostream"
 #include "tuple"
-
-void main() {
-
-    return;
-}
 
 std::tuple<bool[52], float[13]> encode(std::tuple<float[25]> keys) {
     std::tuple<bool[52], float[13]> pins;
-    
+
     //force of keys
-    float activeKeys[10];
+    float activeKeys[10] = { 0,0,0,0,0,0,0,0,0,0 };
     //keys which are pressed
-    int usedKeys[10];
+    int usedKeys[10] = { 0,0,0,0,0,0,0,0,0,0 };
     //current key
-    int pin = 0;
+    int pin = -1;
 
     for (auto i = 0; i < 25; i++) {
         float key = std::get<0>(keys)[i];
-        if (key > 0 && pin < 10) {
+        if (key > 0 && pin < 9) {
+            pin++;
             activeKeys[pin] = key;
             usedKeys[pin] = i;
-            pin++;
         }
     }
 
@@ -43,7 +38,7 @@ std::tuple<bool[52], float[13]> encode(std::tuple<float[25]> keys) {
         std::get<0>(pins)[usedKeys[i]] = true;
         std::get<1>(pins)[i] = activeKeys[i];
     }
-    
+
     return pins;
 }
 
@@ -51,9 +46,9 @@ std::tuple<float[25]> decode(std::tuple<bool[52], float[13]> pins) {
     std::tuple<float[25]> keys;
 
     //force of keys
-    float activeKeys[10];
+    float activeKeys[10] = {0,0,0,0,0,0,0,0,0,0};
     //keys which are pressed
-    int usedKeys[10];
+    int usedKeys[10] = { 0,0,0,0,0,0,0,0,0,0 };
     //current key
     int pin = 0;
 
@@ -67,6 +62,17 @@ std::tuple<float[25]> decode(std::tuple<bool[52], float[13]> pins) {
 
     for (auto i = 0; i <= pin; i++)
         std::get<0>(keys)[usedKeys[i]] = activeKeys[i];
-        
+
     return keys;
+}
+
+void main() {
+    std::tuple<float[25]> keys;
+    for (auto i = 0; i < 25; i++) {
+        std::get<0>(keys)[i] = 0;
+    }
+    std::get<0>(keys)[3] = 0.74;
+    std::cout << std::get<0>(decode(encode(keys)))[3];
+
+    return;
 }
